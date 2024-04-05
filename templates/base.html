@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+{% block head %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %} - Mordorownia</title>
+    <script src="https://unpkg.com/htmx.org@1.9.11" integrity="sha384-0gxUXCCR8yv9FM2b+U3FDbsKthCI66oH5IA9fHppQq9DDMHuMauqq1ZHBpJxQ0J0" crossorigin="anonymous"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/hyperscript.org@0.9.12"></script>
+</head>
+{% endblock %}
+    <body class="bg-gray-900 before:fixed before:-z-50 before:inset-0 before:bg-gray-950/50">
+        <header>
+            <nav class="fixed overflow-hidden z-20 w-full bg-gray-950/0 shadow-md rounded-b-lg shadow-gray-950/10 border-b border-x border-[--ui-dark-border-color] backdrop-blur-2xl">
+                <div class="px-6 m-auto max-w-6xl 2xl:px-0">
+                    <div class="flex flex-wrap items-center justify-between py-2 sm:py-4">
+                        <div class="w-full items-center flex justify-between lg:w-auto">
+                            <a href="/" aria-label="hof logo" class="text-gray-300">
+                                <span>Hall of Fame - Mordorownia</span>
+                            </a>
+                            <div class="flex lg:hidden">
+                                <button aria-label="humburger" id="menu" class="relative border border-white/20 size-9 rounded-full transition duration-300 active:scale-95">
+                                    <div aria-hidden="true" id="line1" class="m-auto h-[1.5px] w-4 rounded transition duration-300 bg-gray-300"></div>
+                                    <div aria-hidden="true" id="line2" class="m-auto mt-1.5 h-[1.5px] w-4 rounded transition duration-300 bg-gray-300"></div>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="w-full h-0 lg:w-fit flex-wrap justify-end items-center space-y-8 lg:space-y-0 lg:flex lg:h-fit md:flex-nowrap">
+                            <div class="mt-6 text-gray-300 md:-ml-4 lg:pr-4 lg:mt-0">
+                                <ul class="space-y-6 tracking-wide text-base lg:text-sm lg:flex lg:space-y-0">
+                                    <li>
+                                        <a href="/" class="block md:px-4 transition hover:text-primary-400">
+                                            <span>Leaderboard</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="/sim/" class="block md:px-4 transition hover:text-primary-400">
+                                            <span>Sim</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#" class="block md:px-4 transition hover:text-primary-400">
+                                            <span>Vault Helper</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#" class="block md:px-4 transition hover:text-primary-400">
+                                            <span>Gems Helper</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#" class="block md:px-4 transition hover:text-primary-400">
+                                            <span>Hampter</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+    
+                            <div class="w-full space-y-2 gap-2 pt-6 pb-4 lg:pb-0 border-t border-[--ui-dark-border-color] items-center flex flex-col lg:flex-row lg:space-y-0 lg:w-fit lg:border-l lg:border-t-0 lg:pt-0 lg:pl-2">
+                                <button class="w-full h-9 lg:w-fit group flex items-center rounded-[--btn-border-radius] *:select-none [&>*:not(.sr-only)]:relative *:disabled:opacity-20 disabled:bg-gray-100 disabled:border-gray-800 disabled:bg-gray-900 *:disabled:!text-white text-gray-300 hover:bg-gray-500/10 active:bg-gray-500/15 lg:text-sm lg:h-8 px-3.5 justify-center">
+                                    <span>Login</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </header>
+
+        <main class="overflow-hidden">
+            <section class="relative">
+                <div class="relative pt-24 lg:pt-28">
+                    {% block content %}{% endblock %}
+                </div>   
+            </section>
+        </main>
+
+        {% block footer %}
+        <footer class="rounded-xl border border-[--ui-dark-border-color]">
+            <div class="max-w-6xl mx-auto space-y-16 px-6 py-16 text-gray-600 2xl:px-0">
+                
+        
+                <div class="flex items-center justify-between rounded-md px-6 py-3 bg-gray-900">
+                    <span class="text-gray-400">&copy; Hamasaki 2024 - Present</span>
+                    <a href="#" class="text-gray-400 hover:text-primary-500">Discord</a>
+                </div>
+            </div>
+        </footer>
+                        
+        
+        
+    </body>
+</html>
+{% endblock %}
