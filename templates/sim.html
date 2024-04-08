@@ -1,32 +1,69 @@
 {% extends "base.html" %}
 {% block title %}Sim{% endblock %}
 {% block content %}
-<div class="">
-        {% if dps %}
-        <span class="text-gray-300 px-6">{{ dps }}</span>
-        {% else %}
+<div id="main-div">
         <div class="max-w-6xl mx-auto">
                 <div class="grid grid-cols-2 justify-center">
                         <div class="flex justify-end px-6">
                                 <p class="text-gray-300 right-0">Character name</p>
                         </div>
-                        <div class="">
-                                <input type="text" class="text-gray-300 bg-gray-500 rounded-md focus:outline-none px-1">
+                        <div class="relative">
+                                <input _="on keyup queue none 
+                                        remove .invisible from #name_spinner
+                                        wait 2s then
+                                        add .data 
+                                        send clear to the <textarea/>
+                                        put '' into the next <output/>
+                                        remove .text-red-300 from the next <output/>
+                                        remove .text-green-300 from the next <output/>
+                                        then
+                                        set charName to my value
+                                        fetch  `/sim/check-name/?char_name=${charName}`
+                                        add .invisible to #name_spinner
+                                        if the result is 'ok' send enable_button to the <button/> 
+                                        put 'okay' into the next <output/>
+                                        add .text-green-300 to the next <output/>
+                                        else add .text-red-300 to the next <output/>
+                                        put result into the next <output/>
+                                        end
+                                        on clear set my value to ''
+                                        put '' into the next <output/>
+                                        remove .data
+                                        send disable_button to the <button/>"
+                                        name="char_name" type="text" class="text-gray-300 bg-gray-500 rounded-md focus:outline-none px-1">
+                                        <div id="name_spinner"
+                                        class="invisible text-gray-300 inline-block h-5 w-5 animate-spin rounded-full border-2 border-solid border-current border-e-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                                        role="status"></div>
+                                <output class="overlay"></output>
                         </div>
                 </div>
                 <div class="flex justify-center py-4">
                         <p class="text-gray-300">or</p>
                 </div>
-                <div class="grid grid-cols-2 justify-center">
+                <div name="simc_string" class="grid grid-cols-2 justify-center">
                         <div class="flex justify-end">
                                 <p class="text-gray-300 px-6">SimC string</p>
                         </div>
                         <div>
-                                <textarea rows="8" class="block text-gray-300 bg-gray-500 rounded-md focus:outline-none px-1 w-5/6"></textarea>
+                                <textarea _="on keyup queue none wait 1s then
+                                        add .data 
+                                        send clear to the previous <input/>
+                                        then
+                                        set simcString to my value
+                                        on clear set my value to ''
+                                        remove .data
+                                        "
+                                        rows="8" class="block text-gray-300 bg-gray-500 rounded-md focus:outline-none px-1 w-5/6 data"></textarea>
                         </div>
                 </div>
+                <div hx-post="/sim/" hx-include=".data" hx-swap="innerHTML" hx-target="#main-div" class="flex justify-center py-8">
+                        <button disabled
+                                _="on enable_button remove @disabled from me then log 'enabled'
+                                        on disable_button add @disabled to me then log 'disable'"
+                                class="text-gray-300 hover:bg-gray-300/10 rounded-[--btn-border-radius] px-4 py-2">
+                                Run sim</button>
+                </div> 
         </div>
-        {% endif %}
 </div>
 
 {% endblock %}

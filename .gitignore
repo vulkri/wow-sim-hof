@@ -3,6 +3,9 @@ simc/
 simc_profiles/
 simc_bin
 
+# Sqlite db
+sql_app.sqlite
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

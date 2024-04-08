@@ -1,0 +1,20 @@
+{% if dps %}
+<div class="max-w-6xl mx-auto">
+    <div class="flex justify-center ">
+        <span class="text-gray-300 text-3xl">Quick sim summary</span>
+    </div>
+    <div class="flex justify-center pt-6">
+        <span class="text-gray-300">DPS: {{ dps }}</span>
+    </div>
+    <div class="flex justify-center pt-3">
+        <span class="text-gray-300">Item level: {{ item_level }}</span>
+    </div>
+    <div class="flex justify-center py-16">
+        <a href="/">
+        <button class="text-gray-300 hover:bg-gray-300/10 rounded-[--btn-border-radius] px-4 py-2">
+                Check leaderboard
+        </button>
+        </a>
+</div> 
+</div>
+{% endif %}
