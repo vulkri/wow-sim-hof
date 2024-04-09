@@ -24,9 +24,7 @@ def adler32(plain_text: str) -> int:
     a = 1
     b = 0
     for plain_chr in plain_text:
-#        a = (a + ord(plain_chr)) % MOD_ADLER
-#        b = (b + a) % MOD_ADLER
-        
+
         a = (a + ord(plain_chr))
         b = (b + a)
 
@@ -35,18 +33,33 @@ def adler32(plain_text: str) -> int:
 
     return (b << 16) + a
 
-s = ""
-with open("teshar.txt.bak") as f:
-    lines = f.readlines()
-    checksum = lines[-1:]
-    lines = lines[:-1]
 
-    for line in lines:
-        s = s + line
-        
-file_checksum = ((checksum[0])[12:])
-calculated_checksum = hex(zlib.adler32(str.encode(s)))[2:]
-if file_checksum != calculated_checksum:
-    print("checksum invalid")
-else:
-    print("checksum valid")
+def parse_simc_string(simc_string: str = None, profile_filename: str = None):
+    s = ""
+    parsed_data = {}
+
+    if profile_filename:
+        with open("simc_profiles/teshar.txt") as f:
+            lines = f.readlines()
+            checksum = lines[-1:]
+            lines = lines[:-1]
+            for line in lines:
+                s = s + line
+
+    if simc_string:
+        lines = simc_string.splitlines()
+        checksum = lines[-1:]
+        content = lines[:-1]
+        for line in content:
+                s = s + line + "\n"
+
+
+    checksum = ((checksum[0])[12:])
+    calculated_checksum = hex(zlib.adler32(str.encode(s)))[2:]
+    if checksum != calculated_checksum:
+        return False
+    
+    character_name = lines[0].split(" ")[1]
+    parsed_data["character_name"] = character_name
+
+    return parsed_data

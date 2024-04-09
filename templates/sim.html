@@ -48,15 +48,34 @@
                                 <p class="text-gray-300 px-6">SimC string</p>
                         </div>
                         <div>
-                                <textarea _="on keyup queue none wait 1s then
+                                <textarea _="on keyup queue none 
+                                        remove .invisible from #simc_spinner
+                                        put '' into the next <output/>
+                                        wait 500ms then
                                         add .data 
                                         send clear to the previous <input/>
                                         then
                                         set simcString to my value
+                                        fetch  `/sim/check-simc-string/` with body: `${simcString}`, method:'POST'
+                                        add .invisible to #simc_spinner
+                                        if the result is 'ok' send enable_button to the <button/> 
+                                        put 'okay' into the next <output/>
+                                        add .text-green-300 to the next <output/>
+                                        remove .text-red-300 from the next <output/>
+                                        else add .text-red-300 to the next <output/>
+                                        remove .text-green-300 from the next <output/>
+                                        put result into the next <output/>
+                                        end
                                         on clear set my value to ''
-                                        remove .data"
-                                        
-                                        rows="8" class="block text-gray-300 bg-gray-500 rounded-md focus:outline-none px-1 w-5/6 data"></textarea>
+                                        remove .data
+                                        put '' into the next <output/>
+                                        send disable_button to the <button/>"
+                                        name="simc_string"
+                                        rows="8" class="block text-gray-300 bg-gray-500 rounded-md focus:outline-none px-1 w-5/6"></textarea>
+                                        <div id="simc_spinner"
+                                                class="invisible mt-1 text-gray-300 inline-block h-5 w-5 animate-spin rounded-full border-2 border-solid border-current border-e-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                                                role="status"></div>
+                                        <output class="overlay mt-1 -ml-5"></output>
                         </div>
                 </div>
                 <div class="grid grid-cols-2 justify-center">

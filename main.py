@@ -1,16 +1,21 @@
-import subprocess
-from blizzardapi import BlizzardApi
-from sqlalchemy.orm import Session
+import os
+import uuid
 import datetime
 from typing import Any
-import json
+from urllib.parse import unquote
+
+import starlette.status as status
+from sqlalchemy.orm import Session
 
 from fastapi import Body, Depends, FastAPI, Request
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse, PlainTextResponse
+from fastapi.responses import HTMLResponse, PlainTextResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
-from database import SessionLocal, engine
+from sim import sim_it
+from chksum import parse_simc_string
+from database import engine, SessionLocal
+from blizz_api import get_blizz_data
 import models
 
 
@@ -23,11 +28,6 @@ templates = Jinja2Templates(directory="templates")
 
 models.Base.metadata.create_all(bind=engine)
 
-blzapi_client = BlizzardApi("7ce044fe2c414253b5f7c19fa9538181", "qlei4yrlDDfJSiNpoOA4NxZSERsGE9xY")
-
-simc = "./simc_bin"
-
-
 
 def get_db():
     db = SessionLocal()
@@ -35,47 +35,6 @@ def get_db():
         yield db
     finally:
         db.close()
-
-
-def get_blizz_data(char_name: str):
-    char_profile = blzapi_client.wow.profile.get_character_profile_summary("eu", "en_GB", "burning-legion", char_name.lower())
-
-    if "code" in char_profile.keys() and char_profile["code"] == 404:
-        return {"error": "character not found"}
-
-    if "guild" not in char_profile.keys() or char_profile["guild"]["name"] != "Mordorownia":
-        return {"error": "wrong guild"}
-    profile = {
-        "name": char_profile["name"],
-        "equipped_item_level": char_profile["equipped_item_level"]
-    }
-    return profile
-
-
-async def sim_it(name: str = None, profile_filename: str = None):
-    if name:
-        args = " armory=eu,burning-legion," + name
-    if profile_filename:
-        args = " " + profile_filename
-
-    cmd = simc + args
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
-    (output, err) = p.communicate()
-
-    p_status = p.wait()
-    if p_status != 0:
-        return
-    output_text = output.splitlines()
-    dps_next = False
-    for line in output_text:
-        if dps_next:
-            dps = line.split()[0].decode("utf-8")
-            break
-        if line.startswith(b"DPS Ranking:"):
-            dps_next = True
-
-    return dps
-
 
 def update_leaderboard(entry_data: dict, db: Session):
     new_entry = False
@@ -105,7 +64,7 @@ def read_leaderboard(db: Session):
 
 
 @app.get("/hampter/", response_class=HTMLResponse)
-async def read_root(request: Request):
+async def show_hampter(request: Request):
 
     return templates.TemplateResponse(
         request=request, name="hampter.html"
@@ -114,9 +73,9 @@ async def read_root(request: Request):
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request, db: Session=Depends(get_db)):
-    
     leaderboard = read_leaderboard(db)
     new_leaderboard = []
+
     for i, entry in enumerate(leaderboard, start=1):
         entry["pos"] = i
         new_leaderboard.append(entry)
@@ -129,7 +88,7 @@ async def read_root(request: Request, db: Session=Depends(get_db)):
 
 
 @app.get("/sim/", response_class=HTMLResponse)
-def read_root(request: Request):
+def sim_character_import(request: Request):
     context = {"request": request}
 
     return templates.TemplateResponse(
@@ -138,7 +97,7 @@ def read_root(request: Request):
 
 
 @app.post("/sim/", response_class=HTMLResponse)
-async def read_root(request: Request, 
+async def start_quick_sim(request: Request, 
                     payload: Any = Body(None), 
                     db: Session=Depends(get_db)
                     ):
@@ -154,11 +113,31 @@ async def read_root(request: Request,
 
     if payload[0] == "char_name":
         char_name = payload[1]
+        profile = get_blizz_data(char_name)
+        # TODO error handling (front's doing validation anyway)
+        if "error" in profile.keys():
+            return RedirectResponse(url="/sim/", status_code=status.HTTP_302_FOUND)
+        if profile["name"]:
+            dps = await sim_it(name = profile["name"])   
 
-    profile = get_blizz_data(char_name)
+    if payload[0] == "simc_string":
+        simc_string = unquote(payload[1])
+        parsed_simc = parse_simc_string(simc_string=simc_string)
+        # TODO error handling (front's doing validation anyway)
+        if not parsed_simc:
+            return RedirectResponse(url="/sim/", status_code=status.HTTP_302_FOUND)
+        
+        profile = get_blizz_data(parsed_simc["character_name"])
+        # TODO error handling (front's doing validation anyway)
+        if "error" in profile.keys():
+            return RedirectResponse(url="/sim/", status_code=status.HTTP_302_FOUND)
 
-    if profile["name"]:
-        dps = await sim_it(profile["name"])            
+        filename = "simc_profiles/" + str(uuid.uuid4()) + ".simc"
+        with open (filename, 'w') as f:
+            f.write(simc_string)
+        dps = await sim_it(profile_filename=filename)
+
+        os.remove(filename)   
 
     if dps:
         context["dps"] = dps
@@ -177,8 +156,22 @@ async def read_root(request: Request,
 
 
 @app.get("/sim/check-name/", response_class=PlainTextResponse)
-async def read_root(request: Request, char_name):
+async def check_char_name(request: Request, char_name):
     profile = get_blizz_data(char_name)
+    if "error" in profile.keys():
+        return profile["error"]
+    
+    return "ok"
+
+
+@app.post("/sim/check-simc-string/", response_class=PlainTextResponse)
+async def check_simc_string(request: Request, payload: Any = Body(None)):
+    simc_string = payload.decode("utf-8")
+    parsed_simc = parse_simc_string(simc_string=simc_string)
+    if not parsed_simc:
+        return "ok"
+
+    profile = get_blizz_data(parsed_simc["character_name"])
     if "error" in profile.keys():
         return profile["error"]
     

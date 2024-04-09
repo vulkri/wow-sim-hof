@@ -1,6 +1,6 @@
 # Simc files
 simc/
-simc_profiles/
+simc_profiles/*
 simc_bin
 
 # Sqlite db
