@@ -40,6 +40,9 @@ def get_db():
 def get_blizz_data(char_name: str):
     char_profile = blzapi_client.wow.profile.get_character_profile_summary("eu", "en_GB", "burning-legion", char_name.lower())
 
+    if "code" in char_profile.keys() and char_profile["code"] == 404:
+        return {"error": "character not found"}
+
     if "guild" not in char_profile.keys() or char_profile["guild"]["name"] != "Mordorownia":
         return {"error": "wrong guild"}
     profile = {
@@ -88,12 +91,17 @@ def update_leaderboard(entry_data: dict, db: Session):
         for key, value in entry_data.items():
             setattr(current_entry, key, value)
         
-
     db.commit()
     if not new_entry: 
         db.refresh(current_entry)
     
     return current_entry
+
+
+def read_leaderboard(db: Session):
+    entries = db.query(models.LeaderboardEntry).order_by(models.LeaderboardEntry.dps.desc()).all()
+    entries_dict = [{column.name: getattr(row, column.name) for column in models.LeaderboardEntry.__table__.columns} for row in entries]
+    return entries_dict
 
 
 @app.get("/hampter/", response_class=HTMLResponse)
@@ -105,10 +113,18 @@ async def read_root(request: Request):
 
 
 @app.get("/", response_class=HTMLResponse)
-async def read_root(request: Request):
+async def read_root(request: Request, db: Session=Depends(get_db)):
+    
+    leaderboard = read_leaderboard(db)
+    new_leaderboard = []
+    for i, entry in enumerate(leaderboard, start=1):
+        entry["pos"] = i
+        new_leaderboard.append(entry)
+
+    context = {"leaderboard": new_leaderboard}
 
     return templates.TemplateResponse(
-        request=request, name="index.html"
+        request=request, name="index.html", context=context
     )
 
 
@@ -128,11 +144,6 @@ async def read_root(request: Request,
                     ):
     context = {"request": request}
     dps = False
-    #context["dps"] = 200100
-    #context["item_level"] = 487
-    #return templates.TemplateResponse(
-    #    name="/partials/quick_sim_score.html", context=context
-    #)
 
     if not payload:
         return templates.TemplateResponse(

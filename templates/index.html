@@ -1,7 +1,31 @@
 {% extends "base.html" %}
 {% block title %}Hall of Fame{% endblock %}
 {% block content %}
-<div class="flex items-center justify-center mx-auto px-6 max-w-7xl md:px-12 content-center">
-        <span class="text-gray-300 px-6">Leaderboard</span>
+<div class="flex items-center justify-center mx-auto px-6 max-w-7xl md:px-12 content-center pb-12">
+        <span class="text-gray-300 px-6 text-3xl">Leaderboard</span>
 </div>
+<div class="flex justify-center">
+        <div class="pb-12">
+        <table class="w-full text-left table-auto min-w-max text-gray-300 border-spacing-y-4">
+                <thead>
+                <tr>
+                        <th class="px-4">Pos.</th>
+                        <th class="px-4">Character name</th>
+                        <th class="px-4">Item level</th>
+                        <th class="px-4">DPS</th>
+                </tr>
+                </thead>
+                {% for entry in leaderboard %}
+                <tr class="hover:bg-sky-800">                
+                        <td class="px-4">{{entry.pos}}</td>
+                        <td class="px-4">{{entry.char_name}}</td>
+                        <td class="px-4">{{entry.item_level}}</td>
+                        <td class="px-4">{{entry.dps}}</td>
+                </tr>
+                {% endfor %}
+        </table>
+        </div>
+
+</div>
+
 {% endblock %}

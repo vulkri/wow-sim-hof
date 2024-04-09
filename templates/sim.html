@@ -3,17 +3,20 @@
 {% block content %}
 <div id="main-div">
         <div class="max-w-6xl mx-auto">
-                <div class="grid grid-cols-2 justify-center">
+                <div class="flex justify-center ">
+                        <span class="text-gray-300 text-3xl">Quick sim</span>
+                    </div>
+                <div class="grid grid-cols-2 justify-center pt-8">
                         <div class="flex justify-end px-6">
                                 <p class="text-gray-300 right-0">Character name</p>
                         </div>
                         <div class="relative">
                                 <input _="on keyup queue none 
                                         remove .invisible from #name_spinner
+                                        put '' into the next <output/>
                                         wait 2s then
                                         add .data 
                                         send clear to the <textarea/>
-                                        put '' into the next <output/>
                                         remove .text-red-300 from the next <output/>
                                         remove .text-green-300 from the next <output/>
                                         then
@@ -34,7 +37,7 @@
                                         <div id="name_spinner"
                                         class="invisible text-gray-300 inline-block h-5 w-5 animate-spin rounded-full border-2 border-solid border-current border-e-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
                                         role="status"></div>
-                                <output class="overlay"></output>
+                                <output class="overlay -ml-5"></output>
                         </div>
                 </div>
                 <div class="flex justify-center py-4">
@@ -51,18 +54,24 @@
                                         then
                                         set simcString to my value
                                         on clear set my value to ''
-                                        remove .data
-                                        "
+                                        remove .data"
+                                        
                                         rows="8" class="block text-gray-300 bg-gray-500 rounded-md focus:outline-none px-1 w-5/6 data"></textarea>
                         </div>
                 </div>
-                <div hx-post="/sim/" hx-include=".data" hx-swap="innerHTML" hx-target="#main-div" class="flex justify-center py-8">
+                <div class="grid grid-cols-2 justify-center">
+                
+                <div hx-post="/sim/" hx-include=".data" hx-swap="innerHTML" hx-target="#main-div" hx-indicator="#sim_spinner" class="justify-end flex py-8 -mr-10">
                         <button disabled
-                                _="on enable_button remove @disabled from me then log 'enabled'
-                                        on disable_button add @disabled to me then log 'disable'"
-                                class="text-gray-300 hover:bg-gray-300/10 rounded-[--btn-border-radius] px-4 py-2">
+                                _="on enable_button remove @disabled from me
+                                        on disable_button add @disabled to me"
+                                class="justify-end text-gray-300 hover:bg-gray-300/10 rounded-[--btn-border-radius] px-4 py-2">
                                 Run sim</button>
                 </div> 
+                <div class="flex py-11 align-middle ml-10"><div id="sim_spinner"
+                        class="htmx-indicator text-gray-300 h-5 w-5 animate-spin rounded-full border-2 border-solid border-current border-e-transparent motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                        role="status"></div></div>
+                </div>
         </div>
 </div>
 
