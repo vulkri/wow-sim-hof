@@ -1,7 +1,7 @@
 import subprocess
 
 
-simc = "../simc_bin"
+simc = "./simc_bin"
 
 
 async def sim_it(name: str = None, profile_filename: str = None):
