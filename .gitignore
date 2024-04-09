@@ -1,6 +1,9 @@
+# VS Code
+.vscode/
+
 # Simc files
 simc/
-simc_profiles/*
+app/simc_profiles/*
 simc_bin
 
 # Sqlite db

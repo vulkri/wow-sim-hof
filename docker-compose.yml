@@ -1,0 +1,8 @@
+services:
+  app:
+    container_name: "hof-mordorownia"
+    build:
+      context: .
+      dockerfile: app/Dockerfile
+    ports:
+      - "8008:80"
