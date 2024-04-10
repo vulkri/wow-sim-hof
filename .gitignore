@@ -2,7 +2,8 @@
 .vscode/
 
 # Simc files
-simc/
+simc_builder/simc
+apikey.txt
 app/simc_profiles/*
 simc_bin
 

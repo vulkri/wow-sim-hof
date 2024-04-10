@@ -1,0 +1,6 @@
+services:
+  simc_builder:
+    container_name: "simc-builder-mordorownia"
+    build:
+      context: simc_builder
+      dockerfile: Dockerfile

@@ -1,0 +1,3 @@
+docker compose -f docker-compose-build-simc.yml build --no-cache
+docker compose -f docker-compose-build-simc.yml up
+docker cp simc-builder-mordorownia:/simc/simc/engine/simc app/simc_bin

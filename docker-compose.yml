@@ -2,7 +2,7 @@ services:
   app:
     container_name: "hof-mordorownia"
     build:
-      context: .
-      dockerfile: app/Dockerfile
+      context: app
+      dockerfile: Dockerfile
     ports:
       - "8008:80"
