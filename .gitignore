@@ -5,8 +5,10 @@
 simc_builder/simc
 apikey.txt
 app/simc_profiles/*
+!.gitkeep
 simc_bin
 simc_bin_docker
+*.simc
 
 # Sqlite db
 sql_app.sqlite
