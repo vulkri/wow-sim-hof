@@ -9,6 +9,7 @@ uvicorn = {extras = ["standard"], version = "*"}
 jinja2 = "*"
 python-blizzardapi = "*"
 sqlalchemy = "*"
+python-dotenv = "*"
 
 [dev-packages]
 

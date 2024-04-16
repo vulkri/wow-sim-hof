@@ -4,11 +4,11 @@ import subprocess
 simc = "./simc_bin"
 
 
-async def sim_it(name: str = None, profile_filename: str = None):
+async def sim_it(name: str = None, simc_filename: str = None) -> int:
     if name:
         args = " armory=eu,burning-legion," + name
-    if profile_filename:
-        args = " " + profile_filename
+    if simc_filename:
+        args = " " + simc_filename
 
     cmd = simc + args
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
@@ -26,4 +26,4 @@ async def sim_it(name: str = None, profile_filename: str = None):
         if line.startswith(b"DPS Ranking:"):
             dps_next = True
 
-    return dps
+    return int(dps)

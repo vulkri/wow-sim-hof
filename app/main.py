@@ -36,15 +36,14 @@ def get_db():
     finally:
         db.close()
 
-def update_leaderboard(entry_data: dict, db: Session):
+# Add new entry or update existing one after running quick sim
+def update_leaderboard(entry_data: dict, db: Session) -> models.LeaderboardEntry:
     new_entry = False
     current_entry = db.query(models.LeaderboardEntry).filter(models.LeaderboardEntry.char_name==entry_data["char_name"]).one_or_none()
 
     if not current_entry:
         new_entry = True
         entry = models.LeaderboardEntry
-
-    if new_entry:
         current_entry = db.add(entry(**entry_data))
     else:
         for key, value in entry_data.items():
@@ -57,7 +56,8 @@ def update_leaderboard(entry_data: dict, db: Session):
     return current_entry
 
 
-def read_leaderboard(db: Session):
+# Read leaderboard entries
+def read_leaderboard(db: Session) -> dict:
     entries = db.query(models.LeaderboardEntry).order_by(models.LeaderboardEntry.dps.desc()).all()
     entries_dict = [{column.name: getattr(row, column.name) for column in models.LeaderboardEntry.__table__.columns} for row in entries]
     return entries_dict
@@ -111,10 +111,10 @@ async def start_quick_sim(request: Request,
 
     payload = payload.decode("utf-8").split("=")
 
+    # TODO error handling (front's doing validation anyway)
     if payload[0] == "char_name":
         char_name = payload[1]
         profile = get_blizz_data(char_name)
-        # TODO error handling (front's doing validation anyway)
         if "error" in profile.keys():
             return RedirectResponse(url="/sim/", status_code=status.HTTP_302_FOUND)
         if profile["name"]:
@@ -123,19 +123,17 @@ async def start_quick_sim(request: Request,
     if payload[0] == "simc_string":
         simc_string = unquote(payload[1])
         parsed_simc = parse_simc_string(simc_string=simc_string)
-        # TODO error handling (front's doing validation anyway)
         if not parsed_simc:
             return RedirectResponse(url="/sim/", status_code=status.HTTP_302_FOUND)
         
         profile = get_blizz_data(parsed_simc["character_name"])
-        # TODO error handling (front's doing validation anyway)
         if "error" in profile.keys():
             return RedirectResponse(url="/sim/", status_code=status.HTTP_302_FOUND)
 
         filename = "simc_profiles/" + str(uuid.uuid4()) + ".simc"
         with open (filename, 'w') as f:
             f.write(simc_string)
-        dps = await sim_it(profile_filename=filename)
+        dps = await sim_it(simc_filename=filename)
 
         os.remove(filename)   
 

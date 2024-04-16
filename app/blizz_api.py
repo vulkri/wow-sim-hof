@@ -1,7 +1,11 @@
+import os
+from dotenv import load_dotenv
 from blizzardapi import BlizzardApi
 
+load_dotenv()
 
-blzapi_client = BlizzardApi("7ce044fe2c414253b5f7c19fa9538181", "qlei4yrlDDfJSiNpoOA4NxZSERsGE9xY")
+blzapi_client = BlizzardApi(os.getenv("API_ID"), os.getenv("API_KEY"))
+
 
 
 def get_blizz_data(char_name: str):
