@@ -6,6 +6,7 @@ simc_builder/simc
 apikey.txt
 app/simc_profiles/*
 simc_bin
+simc_bin_docker
 
 # Sqlite db
 sql_app.sqlite

@@ -4,11 +4,23 @@
         <span class="text-gray-300 text-3xl">Quick sim summary</span>
     </div>
     <table class="flex justify-center text-left table-auto min-w-max text-gray-300 border-spacing-y-4 pt-8">
-        <tr class="">                
-            <td class="px-4">DPS</td>
-            <td class="px-4">{{ dps }}</td>
+        <tr>                
+            <td class="px-4 text-3xl font-bold">DPS</td>
+            <td class="px-4 text-3xl font-bold">{{ dps }}</td>
         </tr>
-        <tr class="">                
+        <tr>                
+            <td class="px-4">Name</td>
+            <td class="px-4">{{ char_name }}</td>
+        </tr>
+        <tr>                
+            <td class="px-4">Class</td>
+            <td class="px-4">{{ char_class }}</td>
+        </tr>
+        <tr>                
+            <td class="px-4">Spec</td>
+            <td class="px-4">{{ specialization_name }}</td>
+        </tr>
+        <tr>                
             <td class="px-4">Item level</td>
             <td class="px-4">{{ item_level }}</td>
         </tr>

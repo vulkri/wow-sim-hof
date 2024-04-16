@@ -39,15 +39,21 @@ def get_db():
 # Add new entry or update existing one after running quick sim
 def update_leaderboard(entry_data: dict, db: Session) -> models.LeaderboardEntry:
     new_entry = False
-    current_entry = db.query(models.LeaderboardEntry).filter(models.LeaderboardEntry.char_name==entry_data["char_name"]).one_or_none()
+    current_entry = db.query(models.LeaderboardEntry).filter(
+        models.LeaderboardEntry.char_name==entry_data["char_name"],
+        models.LeaderboardEntry.specialization_id==entry_data["specialization_id"]
+        ).one_or_none()
 
     if not current_entry:
         new_entry = True
         entry = models.LeaderboardEntry
         current_entry = db.add(entry(**entry_data))
     else:
-        for key, value in entry_data.items():
-            setattr(current_entry, key, value)
+        if current_entry.dps < entry_data["dps"]:
+            setattr(current_entry, "dps", entry_data["dps"])
+            setattr(current_entry, "last_sim", entry_data["last_sim"])
+            setattr(current_entry, "item_level", entry_data["item_level"])
+
         
     db.commit()
     if not new_entry: 
@@ -120,6 +126,7 @@ async def start_quick_sim(request: Request,
         if profile["name"]:
             dps = await sim_it(name = profile["name"])   
 
+    # TODO get character details (spec, ilvl) from simc string, not blizz api
     if payload[0] == "simc_string":
         simc_string = unquote(payload[1])
         parsed_simc = parse_simc_string(simc_string=simc_string)
@@ -138,21 +145,25 @@ async def start_quick_sim(request: Request,
         os.remove(filename)   
 
     if dps:
-        context["dps"] = dps
-        context["item_level"] = profile["equipped_item_level"]
         entry_data = {
             "char_name": profile["name"],
-            "dps": context["dps"],
+            "dps": dps,
             "item_level": profile["equipped_item_level"],
+            "char_class": profile["char_class"],
+            "specialization_name": profile["specialization_name"],
+            "specialization_id": profile["specialization_id"],
             "last_sim": datetime.datetime.now()
         }
+        context.update(entry_data)
         update_leaderboard(entry_data, db)
+    else:
+        context = "sim error"
 
     return templates.TemplateResponse(
         name="/partials/quick_sim_score.html", context=context
     )
 
-
+# Validate character name - 
 @app.get("/sim/check-name/", response_class=PlainTextResponse)
 async def check_char_name(request: Request, char_name):
     profile = get_blizz_data(char_name)
@@ -161,13 +172,16 @@ async def check_char_name(request: Request, char_name):
     
     return "ok"
 
-
+# Validate simc string
 @app.post("/sim/check-simc-string/", response_class=PlainTextResponse)
 async def check_simc_string(request: Request, payload: Any = Body(None)):
+    if not payload:
+        return "paste simc string"
+    
     simc_string = payload.decode("utf-8")
     parsed_simc = parse_simc_string(simc_string=simc_string)
     if not parsed_simc:
-        return "ok"
+        return "invalid simc string"
 
     profile = get_blizz_data(parsed_simc["character_name"])
     if "error" in profile.keys():
