@@ -163,6 +163,14 @@ async def start_quick_sim(request: Request,
         name="/partials/quick_sim_score.html", context=context
     )
 
+@app.get("/vault-helper/", response_class=HTMLResponse)
+def sim_character_import(request: Request):
+    context = {"request": request}
+
+    return templates.TemplateResponse(
+        name="sim.html", context=context
+    )
+
 # Validate character name - 
 @app.get("/sim/check-name/", response_class=PlainTextResponse)
 async def check_char_name(request: Request, char_name):
