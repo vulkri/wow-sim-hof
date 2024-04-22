@@ -28,7 +28,7 @@ templates = Jinja2Templates(directory="templates")
 
 models.Base.metadata.create_all(bind=engine)
 
-
+# DB dependency
 def get_db():
     db = SessionLocal()
     try:
@@ -39,22 +39,22 @@ def get_db():
 # Add new entry or update existing one after running quick sim
 def update_leaderboard(entry_data: dict, db: Session) -> models.LeaderboardEntry:
     new_entry = False
+    # Get current entry for char_name and specialization
     current_entry = db.query(models.LeaderboardEntry).filter(
         models.LeaderboardEntry.char_name==entry_data["char_name"],
         models.LeaderboardEntry.specialization_id==entry_data["specialization_id"]
         ).one_or_none()
-
+    # Create entry if it's first quick sim
     if not current_entry:
         new_entry = True
         entry = models.LeaderboardEntry
         current_entry = db.add(entry(**entry_data))
-    else:
-        if current_entry.dps < entry_data["dps"]:
-            setattr(current_entry, "dps", entry_data["dps"])
-            setattr(current_entry, "last_sim", entry_data["last_sim"])
-            setattr(current_entry, "item_level", entry_data["item_level"])
+    # If entry exists update old one if new one's got higher dps
+    elif current_entry.dps < entry_data["dps"]:
+        setattr(current_entry, "dps", entry_data["dps"])
+        setattr(current_entry, "last_sim", entry_data["last_sim"])
+        setattr(current_entry, "item_level", entry_data["item_level"])
 
-        
     db.commit()
     if not new_entry: 
         db.refresh(current_entry)
@@ -68,20 +68,21 @@ def read_leaderboard(db: Session) -> dict:
     entries_dict = [{column.name: getattr(row, column.name) for column in models.LeaderboardEntry.__table__.columns} for row in entries]
     return entries_dict
 
-
+# Used it to test static files serving
 @app.get("/hampter/", response_class=HTMLResponse)
-async def show_hampter(request: Request):
+def show_hampter(request: Request):
 
     return templates.TemplateResponse(
         request=request, name="hampter.html"
     )
 
-
+# Leaderboard
 @app.get("/", response_class=HTMLResponse)
-async def read_root(request: Request, db: Session=Depends(get_db)):
+def read_root(request: Request, db: Session=Depends(get_db)):
     leaderboard = read_leaderboard(db)
     new_leaderboard = []
 
+    # Append position to leaderboard dict (dict sorted from highest to lowest)
     for i, entry in enumerate(leaderboard, start=1):
         entry["pos"] = i
         new_leaderboard.append(entry)
@@ -92,7 +93,7 @@ async def read_root(request: Request, db: Session=Depends(get_db)):
         request=request, name="index.html", context=context
     )
 
-
+# Quick sim GET request
 @app.get("/sim/", response_class=HTMLResponse)
 def sim_character_import(request: Request):
     context = {"request": request}
@@ -101,7 +102,7 @@ def sim_character_import(request: Request):
         name="sim.html", context=context
     )
 
-
+# Quick sim POST request
 @app.post("/sim/", response_class=HTMLResponse)
 async def start_quick_sim(request: Request, 
                     payload: Any = Body(None), 
@@ -117,6 +118,7 @@ async def start_quick_sim(request: Request,
 
     payload = payload.decode("utf-8").split("=")
 
+    # Quick sim using character name
     # TODO error handling (front's doing validation anyway)
     if payload[0] == "char_name":
         char_name = payload[1]
@@ -126,6 +128,7 @@ async def start_quick_sim(request: Request,
         if profile["name"]:
             dps = await sim_it(name = profile["name"])   
 
+    # Quick sim usisng simc string
     # TODO get character details (spec, ilvl) from simc string, not blizz api
     if payload[0] == "simc_string":
         simc_string = unquote(payload[1])
@@ -137,11 +140,11 @@ async def start_quick_sim(request: Request,
         if "error" in profile.keys():
             return RedirectResponse(url="/sim/", status_code=status.HTTP_302_FOUND)
 
+        # Saving simc string to file (simc executable requirement)
         filename = "simc_profiles/" + str(uuid.uuid4()) + ".simc"
         with open (filename, 'w') as f:
             f.write(simc_string)
         dps = await sim_it(simc_filename=filename)
-
         os.remove(filename)   
 
     if dps:
@@ -187,10 +190,11 @@ async def check_simc_string(request: Request, payload: Any = Body(None)):
         return "paste simc string"
     
     simc_string = payload.decode("utf-8")
+    # Check simc string
     parsed_simc = parse_simc_string(simc_string=simc_string)
     if not parsed_simc:
         return "invalid simc string"
-
+    # Check simc's string character name
     profile = get_blizz_data(parsed_simc["character_name"])
     if "error" in profile.keys():
         return profile["error"]
