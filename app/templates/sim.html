@@ -14,9 +14,9 @@
                                 <input _="on keyup queue none 
                                         remove .invisible from #name_spinner
                                         put '' into the next <output/>
+                                        send clear to the <textarea/>
                                         wait 2s then
                                         add .data 
-                                        send clear to the <textarea/>
                                         remove .text-red-300 from the next <output/>
                                         remove .text-green-300 from the next <output/>
                                         then
@@ -51,9 +51,9 @@
                                 <textarea _="on keyup queue none 
                                         remove .invisible from #simc_spinner
                                         put '' into the next <output/>
+                                        send clear to the previous <input/>
                                         wait 500ms then
                                         add .data 
-                                        send clear to the previous <input/>
                                         then
                                         set simcString to my value
                                         fetch  `/sim/check-simc-string/` with body: `${simcString}`, method:'POST'

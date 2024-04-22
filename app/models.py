@@ -1,9 +1,9 @@
 from sqlalchemy import Column, DateTime, Integer, String
-from sqlalchemy.orm import relationship
+
 
 from database import Base
 
-
+# Leaderboard entry saved after quick sim
 class LeaderboardEntry(Base):
     __tablename__ = "leaderboard"
 
