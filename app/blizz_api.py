@@ -10,6 +10,7 @@ blzapi_client = BlizzardApi(API_ID, API_KEY)
 with open("apikey.txt", "w+") as f:
     f.write(API_ID+":"+API_KEY)
 
+names_whitelist = ("Eilysa", "Eilyss", "Eilyssa",)
 
 # Get character data from blizz api
 # We're supporting only characters from guild mordorownia, burning-legion realm
@@ -18,7 +19,8 @@ def get_blizz_data(char_name: str):
 
     if "code" in char_profile.keys() and char_profile["code"] == 404:
         return {"error": "Character not found"}
-    if "guild" not in char_profile.keys() or char_profile["guild"]["name"] != "Mordorownia":
+    if (("guild" not in char_profile.keys() or char_profile["guild"]["name"] != "Mordorownia") and 
+        char_profile["name"] not in names_whitelist):
         return {"error": "Character's in the wrong guild"}
     
     profile = {
