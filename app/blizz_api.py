@@ -3,8 +3,12 @@ from dotenv import load_dotenv
 from blizzardapi import BlizzardApi
 
 load_dotenv()
-
-blzapi_client = BlizzardApi(os.getenv("API_ID"), os.getenv("API_KEY"))
+API_ID = os.getenv("API_ID")
+API_KEY = os.getenv("API_KEY")
+blzapi_client = BlizzardApi(API_ID, API_KEY)
+# Create apikey.txt with current api id and secret
+with open("apikey.txt", "w+") as f:
+    f.write(API_ID+":"+API_KEY)
 
 
 # Get character data from blizz api
