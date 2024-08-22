@@ -13,7 +13,7 @@ with open("apikey.txt", "w+") as f:
 names_whitelist = ("Eilysa", "Eilyss", "Eilyssa",)
 
 # Get character data from blizz api
-# We're supporting only characters from guild mordorownia, burning-legion realm
+# We're supporting only characters from guild Horde of Hamsters, burning-legion realm
 def get_blizz_data(char_name: str):
     char_profile = blzapi_client.wow.profile.get_character_profile_summary("eu", "en_GB", "burning-legion", char_name.lower())
 
