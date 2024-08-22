@@ -19,7 +19,7 @@ def get_blizz_data(char_name: str):
 
     if "code" in char_profile.keys() and char_profile["code"] == 404:
         return {"error": "Character not found"}
-    if (("guild" not in char_profile.keys() or char_profile["guild"]["name"] != "Mordorownia") and 
+    if (("guild" not in char_profile.keys() or char_profile["guild"]["name"] != "Horde of Hamsters") and 
         char_profile["name"] not in names_whitelist):
         return {"error": "Character's in the wrong guild"}
     
