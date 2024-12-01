@@ -9,6 +9,6 @@ I might add more features later (Great Vault helper, Gem optimizer, etc).
 
 ---
 
-App is available at https://sim.hamsterburrow.pl/
+App is available at https://sim.hamsterburrow.eu/
 
 You might sim any tank and dps character from the guild [Horde of Hamsters - Burning Legion](https://raider.io/guilds/eu/burning-legion/Horde%20of%20Hamsters/roster#mode=all#mode=all)
