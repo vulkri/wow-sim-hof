@@ -7,9 +7,9 @@ name = "pypi"
 fastapi = "*"
 uvicorn = {extras = ["standard"], version = "*"}
 jinja2 = "*"
-python-blizzardapi = "*"
 sqlalchemy = "*"
 python-dotenv = "*"
+python-blizzardapi = {git = "git+https://github.com/vulkri/python-blizzardapi"}
 
 [dev-packages]
 
