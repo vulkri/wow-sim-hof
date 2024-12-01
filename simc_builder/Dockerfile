@@ -2,7 +2,7 @@ FROM python:3-slim-buster
 
 WORKDIR /simc
 
-RUN apt update && apt install make g++ curl git libcurl4-gnutls-dev -y
+RUN apt update && apt install make g++ curl libcurl4-gnutls-dev -y
 
 COPY . .
 

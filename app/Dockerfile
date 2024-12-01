@@ -4,7 +4,7 @@ RUN mkdir /code
 
 WORKDIR /code
 
-RUN apt update && apt install curl libcurl4-gnutls-dev -y
+RUN apt update && apt install curl git libcurl4-gnutls-dev -y
 
 COPY requirements.txt .
 
